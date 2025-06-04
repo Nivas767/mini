@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Мини-викторина</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    button { margin: 10px 0; padding: 10px 20px; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <h2>Мини-викторина</h2>
+  <p>Сколько будет 2 + 2?</p>
+  <button onclick="sendAnswer('4')">4</button>
+  <button onclick="sendAnswer('3')">3</button>
+  <button onclick="sendAnswer('5')">5</button>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+
+    function sendAnswer(answer) {
+      tg.sendData(JSON.stringify({ answer: answer }));
+      alert('Ответ отправлен: ' + answer);
+      tg.close();
+    }
+  </script>
+</body>
+</html>
