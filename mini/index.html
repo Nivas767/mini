@@ -1,29 +1,193 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <title>Мини-викторина</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    button { margin: 10px 0; padding: 10px 20px; font-size: 16px; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Угадай число с анимированным фоном</title>
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    background: #1e1e2f;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Анимированные фигуры на заднем фоне */
+  .shape {
+    position: absolute;
+    border-radius: 20%;
+    opacity: 0.15;
+    animation-timing-function: ease-in-out;
+    filter: drop-shadow(0 0 5px rgba(255,255,255,0.2));
+  }
+  .shape1 {
+    width: 120px;
+    height: 120px;
+    background: #ff4f81;
+    top: 10%;
+    left: 5%;
+    animation: float 6s infinite alternate;
+  }
+  .shape2 {
+    width: 180px;
+    height: 180px;
+    background: #00bfa5;
+    top: 30%;
+    right: 10%;
+    animation: float 8s infinite alternate-reverse;
+  }
+  .shape3 {
+    width: 140px;
+    height: 140px;
+    background: #ffbc42;
+    bottom: 15%;
+    left: 20%;
+    animation: float 7s infinite alternate;
+  }
+  .shape4 {
+    width: 100px;
+    height: 100px;
+    background: #6a4c93;
+    bottom: 10%;
+    right: 25%;
+    animation: float 5s infinite alternate-reverse;
+  }
+
+  @keyframes float {
+    0% {
+      transform: translateY(0) rotate(0deg);
+      border-radius: 20%;
+    }
+    50% {
+      transform: translateY(-30px) rotate(15deg);
+      border-radius: 50%;
+      opacity: 0.25;
+    }
+    100% {
+      transform: translateY(0) rotate(0deg);
+      border-radius: 20%;
+    }
+  }
+
+  /* Надпись Nivas на заднем фоне */
+  .background-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 12vw;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.05);
+    user-select: none;
+    pointer-events: none;
+    font-family: 'Segoe UI Black', sans-serif;
+    letter-spacing: 0.2em;
+    white-space: nowrap;
+  }
+
+  h1 {
+    margin: 20px 0 10px;
+    z-index: 10;
+  }
+
+  input {
+    font-size: 1.2em;
+    padding: 8px;
+    width: 140px;
+    text-align: center;
+    border: none;
+    border-radius: 8px;
+    margin-top: 10px;
+    outline: none;
+    z-index: 10;
+  }
+
+  button {
+    margin-top: 15px;
+    font-size: 1.1em;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background-color: #00bfa5;
+    color: white;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease;
+    z-index: 10;
+  }
+
+  button:hover {
+    background-color: #008f7f;
+  }
+
+  .message {
+    margin-top: 20px;
+    font-size: 1.2em;
+    min-height: 1.5em;
+    z-index: 10;
+  }
+
+  .reset {
+    margin-top: 15px;
+    font-size: 0.9em;
+    color: #aaa;
+    text-decoration: underline;
+    cursor: pointer;
+    user-select: none;
+    z-index: 10;
+  }
+</style>
 </head>
 <body>
-  <h2>Мини-викторина</h2>
-  <p>Сколько будет 2 + 2?</p>
-  <button onclick="sendAnswer('4')">4</button>
-  <button onclick="sendAnswer('3')">3</button>
-  <button onclick="sendAnswer('5')">5</button>
 
-  <script>
-    const tg = window.Telegram.WebApp;
+  <div class="background-text">Nivas</div>
 
-    function sendAnswer(answer) {
-      tg.sendData(JSON.stringify({ answer: answer }));
-      alert('Ответ отправлен: ' + answer);
-      tg.close();
+  <!-- Анимированные фигуры -->
+  <div class="shape shape1"></div>
+  <div class="shape shape2"></div>
+  <div class="shape shape3"></div>
+  <div class="shape shape4"></div>
+
+  <h1>Угадай число от 1 до 100</h1>
+  <input type="number" id="guessInput" min="1" max="100" placeholder="Ваш ответ" />
+  <button onclick="checkGuess()">Проверить</button>
+  <div class="message" id="message"></div>
+  <div class="reset" onclick="resetGame()">Начать заново</div>
+
+<script>
+  let secretNumber = Math.floor(Math.random() * 100) + 1;
+
+  function checkGuess() {
+    const guess = parseInt(document.getElementById('guessInput').value);
+    const msg = document.getElementById('message');
+
+    if (isNaN(guess) || guess < 1 || guess > 100) {
+      msg.textContent = "Введите число от 1 до 100!";
+      return;
     }
-  </script>
+
+    if (guess === secretNumber) {
+      msg.textContent = "🎉 Угадал! Это было " + secretNumber + "!";
+    } else if (guess < secretNumber) {
+      msg.textContent = "🔼 Слишком маленькое!";
+    } else {
+      msg.textContent = "🔽 Слишком большое!";
+    }
+  }
+
+  function resetGame() {
+    secretNumber = Math.floor(Math.random() * 100) + 1;
+    document.getElementById('message').textContent = "";
+    document.getElementById('guessInput').value = "";
+  }
+</script>
+
 </body>
 </html>
